@@ -500,3 +500,15 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:no
   .ring-wrap{width:130px;height:130px}
   .ring-score{font-size:2.1rem}
 }
+
+/* ── Bouton retour accueil (identique fichiers de référence) ── */
+.back-btn{
+  margin-left:auto;
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:8px;
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--muted);font-family:'DM Sans',sans-serif;
+  font-size:.72rem;cursor:pointer;text-decoration:none;
+  transition:border-color .15s,color .15s;
+}
+.back-btn:hover{border-color:var(--accent);color:var(--accent)}
