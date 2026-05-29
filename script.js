@@ -20,19 +20,21 @@
 
 /* ══ 1. APP_STATE ══════════════════════════════════ */
 const S = {
-  data:       null,   // JSON
-  theme:      null,   // thème actif
-  chapitre:   null,   // chapitre actif
-  questions:  [],     // tirage mélangé
-  timerOn:    true,
-  cur:        0,
-  score:      0,
-  selected:   [],
-  answered:   false,
-  timerHandle:null,
-  timeLeft:   0,
-  timeSecs:   0,      // durée pour cette question
-  errors:     [],     // { q, userSelected, correct }
+  data:          null,
+  theme:         null,
+  chapitre:      null,
+  questions:     [],
+  timerOn:       true,
+  cur:           0,
+  score:         0,
+  selected:      [],
+  answered:      false,
+  timerHandle:   null,
+  timeLeft:      0,
+  timeSecs:      0,
+  errors:        [],
+  isRevision:    false,   // mode révision examen
+  revQuestions:  [],      // pool de questions révision (pour rejouer)
 };
 
 // Durées timer par type
@@ -67,6 +69,7 @@ const SCREENS = {
   config:   document.getElementById('s-config'),
   quiz:     document.getElementById('s-quiz'),
   results:  document.getElementById('s-results'),
+  revision: document.getElementById('s-revision'),
 };
 
 function showScreen(name) {
@@ -199,7 +202,149 @@ const CONFIG = {
   getTimerOn() { return document.getElementById('timer-toggle').checked; }
 };
 
-/* ══ 7. QUIZ_ENGINE ════════════════════════════════ */
+/* ══ 6b. REVISION ══════════════════════════════════ */
+const REVISION = {
+  _activeTab: 'all',
+
+  open() {
+    this._activeTab = 'all';
+    this._renderTabs();
+    this._buildSelectList();
+    this._buildThemeList();
+    this._updatePool();
+    showScreen('revision');
+  },
+
+  _allQuestions() {
+    return S.data.themes.flatMap(t => t.chapitres.flatMap(ch => ch.questions));
+  },
+
+  _poolQuestions() {
+    if (this._activeTab === 'all') {
+      return this._allQuestions();
+    }
+    if (this._activeTab === 'select') {
+      const checked = [...document.querySelectorAll('.rev-ch-check:checked')].map(c => c.dataset.id);
+      return S.data.themes.flatMap(t =>
+        t.chapitres.filter(ch => checked.includes(String(ch.id))).flatMap(ch => ch.questions));
+    }
+    if (this._activeTab === 'theme') {
+      const checked = [...document.querySelectorAll('.rev-th-check:checked')].map(c => c.dataset.idx);
+      return S.data.themes
+        .filter((_, i) => checked.includes(String(i)))
+        .flatMap(t => t.chapitres.flatMap(ch => ch.questions));
+    }
+    return [];
+  },
+
+  _updatePool() {
+    const pool = this._poolQuestions();
+    const info = document.getElementById('rev-pool-info');
+    const btn  = document.getElementById('btn-launch-rev');
+    const count = parseInt((document.querySelector('[name="rev-qcount"]:checked') || {value:40}).value);
+
+    if (pool.length === 0) {
+      info.textContent = '⚠ Sélectionnez au moins un chapitre.';
+      info.style.color = 'var(--red)';
+      btn.disabled = true;
+    } else {
+      const drawn = Math.min(count, pool.length);
+      info.textContent = `${pool.length} questions disponibles — ${drawn} seront tirées aléatoirement`;
+      info.style.color = 'var(--muted)';
+      btn.disabled = false;
+    }
+  },
+
+  _renderTabs() {
+    document.querySelectorAll('.rev-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === this._activeTab);
+    });
+    document.querySelectorAll('.rev-panel').forEach(p => {
+      p.classList.toggle('active', p.id === `rev-panel-${this._activeTab}`);
+    });
+    // Mettre à jour le total pour l'onglet "all"
+    if (this._activeTab === 'all') {
+      const el = document.getElementById('rev-all-total');
+      if (el) el.textContent = this._allQuestions().length;
+    }
+  },
+
+  _buildSelectList() {
+    const list = document.getElementById('rev-select-list');
+    if (list.childElementCount > 0) return; // déjà construit
+    list.innerHTML = '';
+    S.data.themes.forEach(t => {
+      const grp = mk('div', 'rev-select-group');
+      grp.innerHTML = `<div class="rev-group-header" style="--gc:${t.couleur}">${t.icon} ${t.theme}</div>`;
+      t.chapitres.forEach(ch => {
+        const row = mk('label', 'rev-ch-row');
+        row.innerHTML = `
+          <input type="checkbox" class="rev-ch-check" data-id="${ch.id}" checked/>
+          <span class="rev-ch-num" style="color:${t.couleur}">Ch.${ch.id}</span>
+          <span class="rev-ch-name">${stripNum(ch.titre)}</span>
+          <span class="rev-ch-q">${ch.questions.length} q.</span>`;
+        row.querySelector('input').addEventListener('change', () => this._updatePool());
+        grp.appendChild(row);
+      });
+      list.appendChild(grp);
+    });
+  },
+
+  _buildThemeList() {
+    const list = document.getElementById('rev-theme-list');
+    if (list.childElementCount > 0) return;
+    list.innerHTML = '';
+    S.data.themes.forEach((t, i) => {
+      const qCount = t.chapitres.reduce((s, ch) => s + ch.questions.length, 0);
+      const row = mk('label', 'rev-th-row');
+      row.style.setProperty('--tc', t.couleur);
+      row.innerHTML = `
+        <input type="checkbox" class="rev-th-check" data-idx="${i}" checked/>
+        <span class="rev-th-icon">${t.icon}</span>
+        <div class="rev-th-info">
+          <span class="rev-th-name">${t.theme}</span>
+          <span class="rev-th-meta">${t.chapitres.length} chapitres · ${qCount} questions</span>
+        </div>
+        <span class="rev-th-check-mark">✓</span>`;
+      row.querySelector('input').addEventListener('change', () => {
+        row.classList.toggle('checked', row.querySelector('input').checked);
+        this._updatePool();
+      });
+      row.classList.add('checked');
+      list.appendChild(row);
+    });
+  },
+
+  launch() {
+    const pool  = this._poolQuestions();
+    if (!pool.length) return;
+    const count = parseInt((document.querySelector('[name="rev-qcount"]:checked') || {value:40}).value);
+    const questions = shuffle([...pool]).slice(0, count);
+
+    S.isRevision   = true;
+    S.revQuestions = questions;  // sauvegarde pour "Recommencer"
+    S.questions    = questions;
+    S.timerOn      = document.getElementById('rev-timer-toggle').checked;
+    S.cur          = 0;
+    S.score        = 0;
+    S.errors       = [];
+    // Pas de chapitre unique : on utilise un objet synthétique
+    S.chapitre     = { id: '__revision__', titre: 'Révision examen · tous chapitres' };
+    S.theme        = { couleur: 'var(--accent)', icon: '🎓' };
+    showScreen('quiz');
+    UI_QUIZ.render();
+  },
+
+  replay() {
+    // Rejouer exactement le même tirage
+    S.questions  = S.revQuestions;
+    S.cur        = 0;
+    S.score      = 0;
+    S.errors     = [];
+    showScreen('quiz');
+    UI_QUIZ.render();
+  }
+};
 const QUIZ = {
   start() {
     const count = Math.min(CONFIG.getCount(), S.chapitre.questions.length);
@@ -238,7 +383,7 @@ const QUIZ = {
     if (S.cur < S.questions.length) {
       UI_QUIZ.render();
     } else {
-      STORAGE.save(S.chapitre.id, S.score, S.questions.length);
+      if (!S.isRevision) STORAGE.save(S.chapitre.id, S.score, S.questions.length);
       RESULTS.show();
     }
   }
@@ -450,7 +595,7 @@ const RESULTS = {
     const pct    = Math.round(score/total*100);
     const note20 = (score/total*20).toFixed(2);
 
-    setText('res-label', chapitre.titre);
+    setText('res-label', S.isRevision ? '🎓 Révision examen' : chapitre.titre);
 
     // Emoji résultat
     const emoji = pct>=90?'🏆':pct>=75?'⭐':pct>=60?'👍':pct>=40?'📚':'💪';
@@ -519,6 +664,17 @@ const RESULTS = {
       errSec.style.display = 'block';
       setText('errors-count', errCount);
       this.buildErrorsList(errors);
+    }
+
+    // Boutons résultats adaptés au mode
+    const btnReplay = document.getElementById('btn-replay');
+    const btnPick   = document.getElementById('btn-pick');
+    if (S.isRevision) {
+      btnReplay.textContent = '↺ Recommencer cette révision';
+      btnPick.textContent   = 'Choisir un autre mode';
+    } else {
+      btnReplay.textContent = '↺ Recommencer ce chapitre';
+      btnPick.textContent   = 'Choisir un autre chapitre';
     }
 
     showScreen('results');
@@ -631,12 +787,53 @@ function getCorrect(q) {
 /* ══ ÉVÉNEMENTS ════════════════════════════════════ */
 document.getElementById('back-home').addEventListener('click',     () => { TIMER.stop(); HOME.render(); });
 document.getElementById('back-chapters').addEventListener('click', () => { TIMER.stop(); CHAPTERS.open(S.theme); });
-document.getElementById('btn-quit').addEventListener('click',      () => { TIMER.stop(); CONFIG.open(S.chapitre, S.theme); });
+document.getElementById('btn-quit').addEventListener('click',      () => {
+  TIMER.stop();
+  if (S.isRevision) { REVISION.open(); }
+  else { CONFIG.open(S.chapitre, S.theme); }
+});
 document.getElementById('btn-launch').addEventListener('click',    () => QUIZ.start());
 document.getElementById('btn-confirm').addEventListener('click',   () => QUIZ.validate());
 document.getElementById('btn-forward').addEventListener('click',   () => QUIZ.next());
-document.getElementById('btn-replay').addEventListener('click',    () => CONFIG.open(S.chapitre, S.theme));
-document.getElementById('btn-pick').addEventListener('click',      () => { TIMER.stop(); CHAPTERS.open(S.theme); });
+document.getElementById('btn-replay').addEventListener('click',    () => {
+  if (S.isRevision) { REVISION.replay(); }
+  else { CONFIG.open(S.chapitre, S.theme); }
+});
+document.getElementById('btn-pick').addEventListener('click',      () => {
+  TIMER.stop();
+  if (S.isRevision) { REVISION.open(); }
+  else { CHAPTERS.open(S.theme); }
+});
+
+// Bouton Mode Révision Examen
+document.getElementById('btn-exam-mode').addEventListener('click', () => REVISION.open());
+
+// Retour accueil depuis révision
+document.getElementById('back-home-rev').addEventListener('click', () => HOME.render());
+
+// Onglets révision
+document.querySelectorAll('.rev-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    REVISION._activeTab = tab.dataset.tab;
+    REVISION._renderTabs();
+    REVISION._updatePool();
+  });
+});
+
+// Sélectionner tout
+document.getElementById('rev-select-all').addEventListener('click', function() {
+  const checks = document.querySelectorAll('.rev-ch-check');
+  const allChecked = [...checks].every(c => c.checked);
+  checks.forEach(c => c.checked = !allChecked);
+  this.textContent = allChecked ? 'Tout sélectionner' : 'Tout désélectionner';
+  REVISION._updatePool();
+});
+
+// Nombre de questions révision
+document.getElementById('rev-count-row').addEventListener('change', () => REVISION._updatePool());
+
+// Lancer la révision
+document.getElementById('btn-launch-rev').addEventListener('click', () => REVISION.launch());
 
 // Toggle erreurs
 document.getElementById('btn-toggle-errors').addEventListener('click', function() {
