@@ -209,7 +209,6 @@ const REVISION = {
   open() {
     this._activeTab = 'all';
     this._renderTabs();
-    this._buildSelectList();
     this._buildThemeList();
     this._updatePool();
     showScreen('revision');
@@ -222,11 +221,6 @@ const REVISION = {
   _poolQuestions() {
     if (this._activeTab === 'all') {
       return this._allQuestions();
-    }
-    if (this._activeTab === 'select') {
-      const checked = [...document.querySelectorAll('.rev-ch-check:checked')].map(c => c.dataset.id);
-      return S.data.themes.flatMap(t =>
-        t.chapitres.filter(ch => checked.includes(String(ch.id))).flatMap(ch => ch.questions));
     }
     if (this._activeTab === 'theme') {
       const checked = [...document.querySelectorAll('.rev-th-check:checked')].map(c => c.dataset.idx);
@@ -267,27 +261,6 @@ const REVISION = {
       const el = document.getElementById('rev-all-total');
       if (el) el.textContent = this._allQuestions().length;
     }
-  },
-
-  _buildSelectList() {
-    const list = document.getElementById('rev-select-list');
-    if (list.childElementCount > 0) return; // déjà construit
-    list.innerHTML = '';
-    S.data.themes.forEach(t => {
-      const grp = mk('div', 'rev-select-group');
-      grp.innerHTML = `<div class="rev-group-header" style="--gc:${t.couleur}">${t.icon} ${t.theme}</div>`;
-      t.chapitres.forEach(ch => {
-        const row = mk('label', 'rev-ch-row');
-        row.innerHTML = `
-          <input type="checkbox" class="rev-ch-check" data-id="${ch.id}" checked/>
-          <span class="rev-ch-num" style="color:${t.couleur}">Ch.${ch.id}</span>
-          <span class="rev-ch-name">${stripNum(ch.titre)}</span>
-          <span class="rev-ch-q">${ch.questions.length} q.</span>`;
-        row.querySelector('input').addEventListener('change', () => this._updatePool());
-        grp.appendChild(row);
-      });
-      list.appendChild(grp);
-    });
   },
 
   _buildThemeList() {
@@ -818,15 +791,6 @@ document.querySelectorAll('.rev-tab').forEach(tab => {
     REVISION._renderTabs();
     REVISION._updatePool();
   });
-});
-
-// Sélectionner tout
-document.getElementById('rev-select-all').addEventListener('click', function() {
-  const checks = document.querySelectorAll('.rev-ch-check');
-  const allChecked = [...checks].every(c => c.checked);
-  checks.forEach(c => c.checked = !allChecked);
-  this.textContent = allChecked ? 'Tout sélectionner' : 'Tout désélectionner';
-  REVISION._updatePool();
 });
 
 // Nombre de questions révision
