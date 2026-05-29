@@ -519,6 +519,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:no
 /* Bouton d'entrée sur l'accueil */
 .exam-mode-wrap{
   margin-top:1.5rem;
+  margin-bottom:.75rem;
 }
 .btn-exam-mode{
   display:flex;align-items:center;gap:1rem;
