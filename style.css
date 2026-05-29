@@ -102,6 +102,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:no
 }
 .title-em{color:var(--accent)}
 .home-kpi{font-size:.78rem;color:var(--muted)}
+.home-desc{font-size:.88rem;color:var(--muted);line-height:1.6;margin-bottom:.4rem;max-width:560px}
 
 .themes-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem}
 .theme-card{
@@ -512,3 +513,154 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:no
   transition:border-color .15s,color .15s;
 }
 .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ══ MODE RÉVISION EXAMEN ════════════════════════ */
+
+/* Bouton d'entrée sur l'accueil */
+.exam-mode-wrap{
+  margin-top:1.5rem;
+}
+.btn-exam-mode{
+  display:flex;align-items:center;gap:1rem;
+  width:100%;padding:1.1rem 1.3rem;
+  background:linear-gradient(135deg,rgba(201,169,110,.08),rgba(201,169,110,.04));
+  border:1px solid rgba(201,169,110,.35);
+  border-left:3px solid var(--accent);
+  border-radius:var(--radius);cursor:pointer;
+  transition:background .18s,border-color .18s,transform .2s,box-shadow .2s;
+  animation:rise .35s ease .5s both;
+  position:relative;overflow:hidden;
+}
+.btn-exam-mode::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(201,169,110,.06),transparent);
+  transform:translateX(-100%);transition:transform .4s ease;
+}
+.btn-exam-mode:hover::before{transform:translateX(100%)}
+.btn-exam-mode:hover{
+  border-color:var(--accent);
+  background:rgba(201,169,110,.1);
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(201,169,110,.15);
+}
+.exam-mode-icon{font-size:1.7rem;flex-shrink:0}
+.exam-mode-text{flex:1;text-align:left;display:flex;flex-direction:column;gap:2px}
+.exam-mode-title{
+  font-family:'Playfair Display',serif;
+  font-size:1rem;font-weight:600;color:var(--accent);
+}
+.exam-mode-sub{font-size:.72rem;color:var(--muted)}
+.exam-mode-arrow{
+  color:var(--accent);font-size:1.2rem;
+  transition:transform .18s;
+}
+.btn-exam-mode:hover .exam-mode-arrow{transform:translateX(4px)}
+
+/* Écran révision */
+.revision-body{
+  flex:1;max-width:680px;width:100%;margin:0 auto;
+  padding:1.5rem 1.5rem 3rem;
+  display:flex;flex-direction:column;gap:1.25rem;
+}
+
+/* Onglets */
+.rev-tabs{
+  display:flex;gap:.4rem;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:4px;
+}
+.rev-tab{
+  flex:1;padding:.5rem .4rem;
+  border-radius:7px;font-size:.74rem;font-weight:500;
+  color:var(--muted);transition:background .15s,color .15s;
+  white-space:nowrap;
+}
+.rev-tab.active{background:var(--surface2);color:var(--accent);border:1px solid var(--border)}
+.rev-tab:hover:not(.active){color:var(--text)}
+
+/* Panneaux */
+.rev-panel{display:none}
+.rev-panel.active{display:block}
+.rev-hint{font-size:.76rem;color:var(--muted);margin-bottom:.75rem}
+
+/* Panneau "Tous" */
+.rev-all-info{
+  display:flex;align-items:center;gap:.85rem;
+  padding:1rem 1.2rem;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);font-size:.85rem;color:var(--text);
+}
+.rev-all-icon{font-size:1.6rem;flex-shrink:0}
+.rev-all-info strong{color:var(--accent)}
+
+/* Sélection libre */
+.rev-select-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:340px;overflow-y:auto}
+.rev-select-group{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.rev-group-header{
+  padding:.5rem .9rem;
+  font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--gc,var(--accent));
+  background:rgba(0,0,0,.15);border-bottom:1px solid var(--border);
+}
+.rev-ch-row{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.55rem .9rem;cursor:pointer;
+  transition:background .12s;
+}
+.rev-ch-row:hover{background:var(--surface2)}
+.rev-ch-row input[type="checkbox"]{
+  accent-color:var(--accent);width:14px;height:14px;flex-shrink:0;cursor:pointer;
+}
+.rev-ch-num{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;min-width:36px}
+.rev-ch-name{flex:1;font-size:.82rem;color:var(--text)}
+.rev-ch-q{font-size:.66rem;color:var(--muted);white-space:nowrap}
+.rev-select-all{
+  font-size:.74rem;color:var(--muted);padding:.35rem .6rem;
+  border:1px solid var(--border);border-radius:7px;background:var(--surface2);
+  transition:border-color .15s,color .15s;
+}
+.rev-select-all:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Par thème */
+.rev-theme-list{display:flex;flex-direction:column;gap:.45rem}
+.rev-th-row{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.85rem 1rem;cursor:pointer;
+  background:var(--surface);border:1px solid var(--border);
+  border-left:3px solid var(--tc,var(--accent));
+  border-radius:var(--radius);
+  transition:background .15s,border-color .15s;
+  opacity:.5;
+}
+.rev-th-row.checked{opacity:1}
+.rev-th-row input[type="checkbox"]{display:none}
+.rev-th-icon{font-size:1.4rem;flex-shrink:0}
+.rev-th-info{flex:1;display:flex;flex-direction:column;gap:2px}
+.rev-th-name{font-size:.86rem;font-weight:500;color:var(--text)}
+.rev-th-meta{font-size:.68rem;color:var(--muted)}
+.rev-th-check-mark{
+  font-size:.75rem;color:var(--green);
+  background:var(--ok-bg);border:1px solid var(--ok-bd);
+  border-radius:99px;padding:2px 8px;
+  transition:opacity .15s;
+}
+.rev-th-row:not(.checked) .rev-th-check-mark{opacity:0}
+
+/* Carte config commune */
+.rev-config-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.5rem 1.5rem 1.25rem;
+  display:flex;flex-direction:column;gap:1rem;
+}
+.rev-pool-info{
+  font-size:.74rem;color:var(--muted);
+  text-align:center;padding:.4rem;
+  background:var(--surface2);border-radius:7px;
+  border:1px solid var(--border);
+}
+
+@media(max-width:600px){
+  .revision-body{padding:1.1rem .875rem 2.5rem}
+  .rev-tabs{gap:.25rem}
+  .rev-tab{font-size:.67rem;padding:.45rem .25rem}
+}

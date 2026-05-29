@@ -36,11 +36,102 @@
   <main class="home-body">
     <div class="home-intro">
       <h1 class="home-title">Révisez par<br><span class="title-em">thème</span></h1>
+      <p class="home-desc">Entraînez-vous sur les 720 questions du programme, organisées en 18 chapitres et 7 thèmes pour réussir votre UE5 d'économie du DCG ! Un mode révision est également disponible.</p>
       <p class="home-kpi" id="home-kpi">720 questions · 18 chapitres · 7 thèmes</p>
     </div>
     <div class="themes-wrap" id="themes-wrap"></div>
+
+    <!-- Bouton Mode Révision Examen -->
+    <div class="exam-mode-wrap">
+      <button class="btn-exam-mode" id="btn-exam-mode">
+        <span class="exam-mode-icon">🎓</span>
+        <div class="exam-mode-text">
+          <span class="exam-mode-title">Mode révision examen</span>
+          <span class="exam-mode-sub">Mélangez les questions de plusieurs chapitres</span>
+        </div>
+        <span class="exam-mode-arrow">›</span>
+      </button>
+    </div>
   </main>
   <footer class="site-footer"><span id="footer-info">Chargement…</span></footer>
+</div>
+
+<!-- ══ ÉCRAN 5 · RÉVISION EXAMEN ════════════════ -->
+<div id="s-revision" class="screen">
+  <div class="nav-bar">
+    <button class="btn-back" id="back-home-rev">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 16 7 10 13 4"/></svg>
+      Accueil
+    </button>
+    <span class="nav-label">Mode révision examen</span>
+    <span style="width:80px"></span>
+  </div>
+  <main class="revision-body">
+
+    <!-- Onglets de sélection -->
+    <div class="rev-tabs" id="rev-tabs">
+      <button class="rev-tab active" data-tab="all">Tous les chapitres</button>
+      <button class="rev-tab" data-tab="select">Sélection libre</button>
+      <button class="rev-tab" data-tab="theme">Par thème</button>
+    </div>
+
+    <!-- Panneau : Tous les chapitres -->
+    <div class="rev-panel active" id="rev-panel-all">
+      <div class="rev-all-info" id="rev-all-info">
+        <span class="rev-all-icon">📚</span>
+        <p>Les 18 chapitres mélangés — <strong id="rev-all-total">720</strong> questions disponibles</p>
+      </div>
+    </div>
+
+    <!-- Panneau : Sélection libre -->
+    <div class="rev-panel" id="rev-panel-select">
+      <p class="rev-hint">Cochez les chapitres à inclure dans votre révision.</p>
+      <div class="rev-select-list" id="rev-select-list"></div>
+      <button class="rev-select-all" id="rev-select-all">Tout sélectionner</button>
+    </div>
+
+    <!-- Panneau : Par thème -->
+    <div class="rev-panel" id="rev-panel-theme">
+      <p class="rev-hint">Choisissez un ou plusieurs thèmes.</p>
+      <div class="rev-theme-list" id="rev-theme-list"></div>
+    </div>
+
+    <!-- Config commune -->
+    <div class="rev-config-card">
+      <fieldset class="cfg-field">
+        <legend class="cfg-legend">Nombre de questions</legend>
+        <div class="count-row" id="rev-count-row">
+          <label class="count-opt"><input type="radio" name="rev-qcount" value="10"/>
+            <span class="count-face"><span class="count-n">10</span><span class="count-hint">~5 min</span></span>
+          </label>
+          <label class="count-opt"><input type="radio" name="rev-qcount" value="20"/>
+            <span class="count-face"><span class="count-n">20</span><span class="count-hint">~10 min</span></span>
+          </label>
+          <label class="count-opt"><input type="radio" name="rev-qcount" value="40" checked/>
+            <span class="count-face"><span class="count-n">40</span><span class="count-hint">Complet</span></span>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="cfg-field">
+        <legend class="cfg-legend">Minuteur adaptatif</legend>
+        <label class="toggle-label">
+          <span class="toggle-wrap">
+            <input type="checkbox" id="rev-timer-toggle" checked/>
+            <span class="toggle-pill"><span class="toggle-knob"></span></span>
+          </span>
+          <span class="toggle-text">VF 8 s · QCU 15 s · QCM 20 s</span>
+        </label>
+      </fieldset>
+
+      <p class="rev-pool-info" id="rev-pool-info"></p>
+
+      <button class="btn-launch" id="btn-launch-rev" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        Démarrer la révision
+      </button>
+    </div>
+  </main>
 </div>
 
 <!-- ══ ÉCRAN 1 · CHAPITRES ═══════════════════════ -->
