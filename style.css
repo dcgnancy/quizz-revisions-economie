@@ -639,13 +639,13 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:no
 .rev-th-info{flex:1;display:flex;flex-direction:column;gap:2px}
 .rev-th-name{font-size:.86rem;font-weight:500;color:var(--text)}
 .rev-th-meta{font-size:.68rem;color:var(--muted)}
-.rev-th-check-mark{
+.rev-th-tick{
   font-size:.75rem;color:var(--green);
   background:var(--ok-bg);border:1px solid var(--ok-bd);
   border-radius:99px;padding:2px 8px;
   transition:opacity .15s;
 }
-.rev-th-row:not(.checked) .rev-th-check-mark{opacity:0}
+.rev-th-row:not(.checked) .rev-th-tick{opacity:0}
 
 /* Carte config commune */
 .rev-config-card{

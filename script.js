@@ -223,7 +223,7 @@ const REVISION = {
       return this._allQuestions();
     }
     if (this._activeTab === 'theme') {
-      const checked = [...document.querySelectorAll('.rev-th-check:checked')].map(c => c.dataset.idx);
+      const checked = [...document.querySelectorAll('input.rev-th-check:checked')].map(c => c.dataset.idx);
       return S.data.themes
         .filter((_, i) => checked.includes(String(i)))
         .flatMap(t => t.chapitres.flatMap(ch => ch.questions));
@@ -278,7 +278,7 @@ const REVISION = {
           <span class="rev-th-name">${t.theme}</span>
           <span class="rev-th-meta">${t.chapitres.length} chapitres · ${qCount} questions</span>
         </div>
-        <span class="rev-th-check-mark">✓</span>`;
+        <span class="rev-th-tick">✓</span>`;
       row.querySelector('input').addEventListener('change', () => {
         row.classList.toggle('checked', row.querySelector('input').checked);
         this._updatePool();
